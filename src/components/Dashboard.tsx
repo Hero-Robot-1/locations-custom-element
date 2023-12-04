@@ -1,8 +1,12 @@
 import React from 'react';
 import './Dashboard.css';
-import { Location } from '../types';
+import {Location} from '../types';
+import {Button, Page, Table} from "@wix/design-system";
+import {dashboard} from '@wix/dashboard';
+import {createClient} from '@wix/sdk';
 
-const locations: Location[]  = [
+
+const locations: Location[] = [
     {
         name: "Tel Aviv",
         coord: {
@@ -19,32 +23,39 @@ const locations: Location[]  = [
     }
 ]
 
+
 function Dashboard() {
+    const client = createClient({
+        host: dashboard.host(),
+        auth: dashboard.auth(),
+        modules: {
+            dashboard,
+        },
+    });
+    const navigateToSettings = () => client.dashboard.navigate('71e35f24-8eb7-41b0-b261-c2259a76372f')
+
+    const columns = [
+        {title: 'Name', width: '60%', render: (location: Location) => location.name},
+        {
+            title: 'Coords',
+            width: '40%',
+            render: (location: Location) => `${location.coord.latitude.toFixed(2)},${location.coord.longitude.toFixed(2)}`
+        },
+    ]
 
     return (
-        <div className="locations-container">
-            <div className="locations-header-container">
-                <h1>Our Locations</h1>
-                <button className="update-locatios-button">Update Locations</button>
-            </div>
-            <table className="locations-table">
-                <thead>
-                    <tr>
-                        <th className="locations-table-header">Name</th>
-                        <th className="locations-table-header">Coords</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {locations.map(location => {
-                        return <tr key={location.name}>
-                            <td className="locations-item-name">{location.name}</td>
-                            <td className="locations-item-name">{location.coord.latitude.toFixed(2)},{location.coord.longitude.toFixed(2)}</td>
-                        </tr>
-                    })}
-                </tbody>
-            </table>
-        </div>
+        <Page>
+            <Page.Header
+                title="Our Locations"
+                actionsBar={<Button onClick={navigateToSettings}>Update Locations</Button>}            />
+            <Page.Content>
+                <Table data={locations} columns={columns} rowVerticalPadding="medium">
+                    <Table.Content/>
+                </Table>
+            </Page.Content>
+        </Page>
     );
 }
+
 
 export default Dashboard;
